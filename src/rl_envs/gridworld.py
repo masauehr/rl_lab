@@ -115,8 +115,11 @@ class GridWorld:
     def step(self, a):
         """行動を1回行う。戻り値: (次の状態, 報酬, terminated, truncated)"""
         outs = self.P[self.s][a]
-        probs = [o[0] for o in outs]
-        p, s2, rew, done = outs[self.rng.choice(len(outs), p=probs)]
+        if len(outs) == 1:                      # 確率的でない遷移なら、乱数を引かない（速くするため）
+            p, s2, rew, done = outs[0]
+        else:
+            probs = [o[0] for o in outs]
+            p, s2, rew, done = outs[self.rng.choice(len(outs), p=probs)]
         self.s, self.t = s2, self.t + 1
         return s2, rew, done, (not done) and self.t >= self.max_steps
 

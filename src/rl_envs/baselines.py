@@ -56,6 +56,15 @@ def value_iteration(env, gamma: float = 1.0, theta: float = 1e-10, max_iter: int
     return V, Q.argmax(axis=1)
 
 
+def optimal_q(env, V, gamma: float = 1.0) -> np.ndarray:
+    """最適な状態価値 V から、最適な行動価値 Q*[s][a] を求める（最適な行動かどうかの判定に使う）"""
+    Q = np.zeros((env.n_states, env.n_actions))
+    for s in range(env.n_states):
+        for a in range(env.n_actions):
+            Q[s, a] = sum(p * (rew + (0.0 if done else gamma * V[s2])) for p, s2, rew, done in env.P[s][a])
+    return Q
+
+
 def policy_evaluation(env, pi, gamma: float = 1.0, theta: float = 1e-10, max_iter: int = 100_000) -> np.ndarray:
     """方策 pi（pi[s][a] は確率。決定的な方策なら one-hot）の、状態価値 V を厳密に求める"""
     pi = np.asarray(pi)

@@ -33,12 +33,13 @@ Phase0 迷路の環境＋ランダム／最適（動的計画法）の基準
 
 ## 現状
 
-**Phase0（迷路の環境と基準）・Phase1（多腕バンディット）完了。** 次は Phase2（表形式のQ学習・SARSA）。進め方は [PLAN.md](PLAN.md)。pc_docs運用マニュアルのコピーは [rl-lab.md](rl-lab.md)。
+**Phase0（迷路の環境と基準）・Phase1（多腕バンディット）・Phase2（表形式のQ学習・SARSA）完了。** 次は Phase3（報酬設計・割引率・探索率の落とし穴）。進め方は [PLAN.md](PLAN.md)。pc_docs運用マニュアルのコピーは [rl-lab.md](rl-lab.md)。
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install numpy pandas matplotlib ipykernel
 .venv/bin/python -m unittest discover -s tests   # テスト
 .venv/bin/python src/run_phase1.py               # 多腕バンディットの実験（約6秒）
+.venv/bin/python src/run_phase2.py               # Q学習・SARSAの実験（4環境×4手法×10シード。約10秒）
 ```
 
 Notebook は `notebooks/`（カーネル名「Python (rl_lab)」）。
