@@ -4,6 +4,7 @@
 「正解を教わらず、**試行錯誤で**良い行動を見つける」仕組みを、自分の手で作って確かめる。
 
 詳しくは [MANUAL.md](MANUAL.md) / [ENV_SPEC.md](ENV_SPEC.md) / [EVALUATION.md](EVALUATION.md) / [PLAN.md](PLAN.md) を参照。
+各Notebookの**実行結果（図・表・読み取れること・演習）のまとめ**は [notebooks/README.md](notebooks/README.md) にある（Notebookを開く前の予習・実行後の答え合わせに使える）。
 
 > 🔒 すべて**自作のシミュレータ**（迷路・合成した発電量と電気料金）で行う。実在の個人データは使わない。
 
