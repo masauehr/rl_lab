@@ -182,3 +182,49 @@ class TestRewardDesign(unittest.TestCase):
         shaped = make_env("snake", step_reward=0.0, goal_reward=1.0, potential=pot, shaping_gamma=0.99)
         nonzero = lambda e: sum(abs(o[2]) > 1e-12 for s in range(e.n_states) for a in range(4) for o in e.P[s][a])  # noqa: E731
         self.assertGreater(nonzero(shaped), nonzero(base) * 5)
+
+
+class TestCartPole(unittest.TestCase):
+    def test_状態と行動の形(self):
+        from rl_envs.cartpole import CartPole
+        env = CartPole()
+        s = env.reset(seed=0)
+        self.assertEqual(s.shape, (4,))
+        self.assertEqual(env.n_actions, 2)
+        self.assertTrue((np.abs(s) <= 0.05).all())
+
+    def test_同じシードなら同じ経過(self):
+        from rl_envs.cartpole import CartPole
+        def run(seed):
+            env = CartPole(); env.reset(seed=seed)
+            return [env.step(i % 2)[0].tolist() for i in range(20)]
+        self.assertEqual(run(3), run(3))
+        self.assertNotEqual(run(3), run(4))
+
+    def test_一方向に押し続けると倒れる(self):
+        from rl_envs.cartpole import CartPole
+        env = CartPole(); env.reset(seed=0)
+        done, n = False, 0
+        while not done and n < 100:
+            _, r, done, trunc = env.step(0); n += 1
+        self.assertTrue(done)
+        self.assertLess(n, 20)
+
+    def test_ルールは満点_ランダムはすぐ倒れる(self):
+        from rl_envs.cartpole import CartPole, heuristic_policy
+        env, rng = CartPole(max_steps=200), np.random.default_rng(0)
+        def ep(policy, seed):
+            s = env.reset(seed=seed); ret, d, t = 0.0, False, False
+            while not (d or t):
+                s, r, d, t = env.step(policy(s)); ret += r
+            return ret
+        self.assertEqual(np.mean([ep(heuristic_policy, i) for i in range(10)]), 200.0)
+        self.assertLess(np.mean([ep(lambda s: int(rng.integers(2)), i) for i in range(30)]), 60.0)
+
+    def test_歩数切れは終了ではない(self):
+        from rl_envs.cartpole import CartPole, heuristic_policy
+        env = CartPole(max_steps=5); s = env.reset(seed=0)
+        for _ in range(5):
+            s, r, done, trunc = env.step(heuristic_policy(s))
+        self.assertTrue(trunc)
+        self.assertFalse(done)

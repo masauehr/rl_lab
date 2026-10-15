@@ -28,7 +28,7 @@
 - 環境・学習器の変更後は `.venv/bin/python -m unittest discover -s tests`（環境の遷移の正しさ、再現性、最適方策が既知の値と一致するか）。
 
 ## 技術スタック
-- Python 3.x / numpy / pandas / matplotlib / Jupyter。深層強化学習（Phase4〜）は PyTorch。CPU または MPS。GPU前提にしない。
+- Python 3.x / numpy / pandas / matplotlib / Jupyter。深層強化学習（Phase4〜）は PyTorch（導入済み。2.14.1）。CPU または MPS。GPU前提にしない。
 - 強化学習用の外部ライブラリ（gym など）は使わず、**環境も学習器も自作**する（仕組みを理解するため）。
 
 ## 注意事項

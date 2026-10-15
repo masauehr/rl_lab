@@ -33,14 +33,15 @@ Phase0 迷路の環境＋ランダム／最適（動的計画法）の基準
 
 ## 現状
 
-**Phase0（迷路の環境と基準）・Phase1（多腕バンディット）・Phase2（表形式のQ学習・SARSA）・Phase3（報酬設計・割引率・学習率・探索率の落とし穴）完了。** 次は Phase4（深層強化学習 DQN。PyTorch導入の確認が必要）。進め方は [PLAN.md](PLAN.md)。pc_docs運用マニュアルのコピーは [rl-lab.md](rl-lab.md)。
+**Phase0（迷路の環境と基準）・Phase1（多腕バンディット）・Phase2（表形式のQ学習・SARSA）・Phase3（報酬設計・割引率・学習率・探索率の落とし穴）・Phase4（深層強化学習 DQN）完了。** 次は Phase5（蓄電池の充放電制御）。進め方は [PLAN.md](PLAN.md)。pc_docs運用マニュアルのコピーは [rl-lab.md](rl-lab.md)。
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install numpy pandas matplotlib ipykernel
+python3 -m venv .venv && .venv/bin/pip install numpy pandas matplotlib ipykernel torch
 .venv/bin/python -m unittest discover -s tests   # テスト
 .venv/bin/python src/run_phase1.py               # 多腕バンディットの実験（約6秒）
 .venv/bin/python src/run_phase2.py               # Q学習・SARSAの実験（4環境×4手法×10シード。約10秒）
 .venv/bin/python src/run_phase3.py               # 報酬ハッキング・まばらな報酬・割引率・学習率と探索率（約2分半）
+.venv/bin/python src/run_phase4.py               # CartPole: ルール・離散化・DQN（再生/ターゲットの有無）（約3分）
 ```
 
 Notebook は `notebooks/`（カーネル名「Python (rl_lab)」）。
