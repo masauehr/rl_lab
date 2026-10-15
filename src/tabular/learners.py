@@ -36,7 +36,8 @@ def train(env, method: str = "q", episodes: int = 500, alpha: float = 0.5, gamma
     """
     rng = np.random.default_rng(seed)
     Q = np.full((env.n_states, env.n_actions), q0, dtype=float)
-    Q[env.goal] = 0.0
+    if hasattr(env, "goal"):
+        Q[env.goal] = 0.0                                    # ゴールのある環境（迷路）では、ゴールの価値は0
     returns, steps, evals = [], [], []
     for ep in range(episodes):
         eps_ep = max(eps_min, eps * eps_decay ** ep)
