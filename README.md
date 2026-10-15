@@ -33,7 +33,7 @@ Phase0 迷路の環境＋ランダム／最適（動的計画法）の基準
 
 ## 現状
 
-**Phase0（迷路の環境と基準）・Phase1（多腕バンディット）・Phase2（表形式のQ学習・SARSA）・Phase3（報酬設計・割引率・学習率・探索率の落とし穴）・Phase4（深層強化学習 DQN）・Phase5（蓄電池の充放電制御）完了。** 次は Phase6（評価・再現性・最終レポート）。進め方は [PLAN.md](PLAN.md)。pc_docs運用マニュアルのコピーは [rl-lab.md](rl-lab.md)。
+**Phase0（迷路の環境と基準）・Phase1（多腕バンディット）・Phase2（表形式のQ学習・SARSA）・Phase3（報酬設計・割引率・学習率・探索率の落とし穴）・Phase4（深層強化学習 DQN）・Phase5（蓄電池の充放電制御）・Phase6（評価・再現性・最終評価）完了。** 最終レポートは [REPORT.md](REPORT.md)。計画した全フェーズが終了。進め方は [PLAN.md](PLAN.md)。pc_docs運用マニュアルのコピーは [rl-lab.md](rl-lab.md)。
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install numpy pandas matplotlib ipykernel torch
@@ -43,6 +43,8 @@ python3 -m venv .venv && .venv/bin/pip install numpy pandas matplotlib ipykernel
 .venv/bin/python src/run_phase3.py               # 報酬ハッキング・まばらな報酬・割引率・学習率と探索率（約2分半）
 .venv/bin/python src/run_phase4.py               # CartPole: ルール・離散化・DQN（再生/ターゲットの有無）（約3分）
 .venv/bin/python src/run_phase5.py               # 蓄電池の充放電: ルール・動的計画法・Q学習・予報の価値・割引率（約3分）
+.venv/bin/python src/select_dev.py               # 最終評価の設定を開発用シードで選ぶ（約10分）
+.venv/bin/python src/final_eval.py --split val   # 最終評価の予行演習（testは使用済み）
 ```
 
 Notebook は `notebooks/`（カーネル名「Python (rl_lab)」）。
