@@ -62,6 +62,13 @@ class TestTabular(unittest.TestCase):
         self.assertEqual(optimal_action_rate(Qs, Qs, env), 1.0)           # 最適なQなら100%
         self.assertLess(optimal_action_rate(np.zeros_like(Qs), Qs, env), 1.0)
 
+    def test_報酬がまばらでも_楽観的な初期値なら全部の行動を試してゴールを見つける(self):
+        mk = lambda: make_env("snake", step_reward=0.0, goal_reward=1.0, max_steps=300, seed=1)  # noqa: E731
+        opt = train(mk(), "q", episodes=40, alpha=0.5, gamma=0.99, eps=0.1, seed=1, q0=1.0)
+        zero = train(mk(), "q", episodes=40, alpha=0.5, gamma=0.99, eps=0.1, seed=1, q0=0.0)
+        self.assertTrue((opt["steps"] < 300).any())          # 楽観的: 40エピソード以内にゴールに着く
+        self.assertFalse((zero["steps"] < 300).any())        # 初期値0: ゴールを見つけられない
+
     def test_歩数切れでは先の価値を使う(self):
         env = make_env("room", max_steps=2)
         res = train(env, "q", episodes=30, seed=0)

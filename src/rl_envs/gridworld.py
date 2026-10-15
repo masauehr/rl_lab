@@ -15,7 +15,7 @@ import numpy as np
 ACTION_NAMES = ["上", "右", "下", "左"]
 _DELTA = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # 上 右 下 左 （行, 列）の変化
 
-# 迷路の形。 # 壁 / . 床 / S スタート / G ゴール / C 崖（落ちるとスタートに戻る）
+# 迷路の形。 # 壁 / . 床 / S スタート / G ゴール / C 崖（落ちるとスタートに戻る） / K コインのマス（床と同じ）
 LAYOUTS = {
     "room": [  # 広い部屋（壁なし）。最短で 8 歩
         "S....",
@@ -31,6 +31,24 @@ LAYOUTS = {
         ".#...#.",
         ".#.#.#G",
     ],
+    "coin": [  # コインのある迷路（K＝コインのマス。踏むたびに coin_reward がもらえる設定にできる）。最短 8 歩
+        "S....",
+        ".....",
+        "..K..",
+        ".....",
+        "....G",
+    ],
+    "snake": [  # 長い一本道（報酬がまばらだと、偶然ゴールに着くのが難しい）。最短 53 歩
+        "S.........",
+        "#########.",
+        "..........",
+        ".#########",
+        "..........",
+        "#########.",
+        "..........",
+        ".#########",
+        ".........G",
+    ],
     "cliff": [  # 崖歩き（Sutton & Barto）。崖沿いが最短、上の道は遠回りだが安全
         "............",
         "............",
@@ -42,11 +60,14 @@ LAYOUTS = {
 
 class GridWorld:
     def __init__(self, layout, slip: float = 0.0, step_reward: float = -1.0, goal_reward: float = 0.0,
-                 cliff_reward: float = -100.0, max_steps: int = 200, seed: int = 0):
+                 cliff_reward: float = -100.0, max_steps: int = 200, seed: int = 0,
+                 coin_reward: float = 0.0, potential=None, shaping_gamma: float = 1.0):
         self.layout = [list(r) for r in layout]
         self.nrows, self.ncols = len(self.layout), len(self.layout[0])
         self.slip, self.step_reward, self.goal_reward, self.cliff_reward = slip, step_reward, goal_reward, cliff_reward
         self.max_steps = max_steps
+        self.coin_reward = coin_reward
+        self.potential, self.shaping_gamma = potential, shaping_gamma
         self.rng = np.random.default_rng(seed)
 
         # 壁以外のマスに、状態の番号を付ける
@@ -101,6 +122,10 @@ class GridWorld:
                         rew, done = self.step_reward + self.goal_reward, True
                     else:
                         rew, done = self.step_reward, False
+                        if self.layout[r2][c2] == "K":          # コインのマス: 踏むたびにボーナス
+                            rew += self.coin_reward
+                    if self.potential is not None:              # 報酬整形（ポテンシャル型）: r + γΦ(s') − Φ(s)。最適方策は変わらない
+                        rew += self.shaping_gamma * (0.0 if done else self.potential[s2]) - self.potential[s]
                     merged[(s2, rew, done)] = merged.get((s2, rew, done), 0.0) + p
                 P[s][a] = [(p, s2, rew, done) for (s2, rew, done), p in merged.items()]
         return P

@@ -34,6 +34,25 @@ def shortest_path_length(env) -> int:
     raise ValueError("ゴールに着けません")
 
 
+def distance_to_goal(env) -> np.ndarray:
+    """各状態から、ゴールまでの最少歩数（壁・崖を避ける。幅優先探索）。報酬整形のポテンシャルに使う"""
+    dist = np.full(env.n_states, np.inf)
+    dist[env.goal] = 0
+    q = deque([env.goal])
+    while q:
+        s = q.popleft()
+        for s0 in range(env.n_states):           # s へ1歩で来られる状態 s0 を探す
+            if dist[s0] < np.inf:
+                continue
+            r0, c0 = env.state_to_cell[s0]
+            if env.layout[r0][c0] == "C":
+                continue
+            if any(env._move(s0, a) == s for a in range(4)):
+                dist[s0] = dist[s] + 1
+                q.append(s0)
+    return dist
+
+
 def value_iteration(env, gamma: float = 1.0, theta: float = 1e-10, max_iter: int = 100_000):
     """最適な状態価値 V* と、最適方策（各状態で最良の行動）を求める。戻り値: (V, 方策の配列 pi[s]=行動)"""
     V = np.zeros(env.n_states)

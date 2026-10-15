@@ -23,12 +23,15 @@ def draw_grid(env, ax=None, V=None, policy=None, title="", show_values=False):
             elif ch == "C":
                 ax.add_patch(plt.Rectangle((c - 0.5, r - 0.5), 1, 1, color="#c0392b", alpha=0.7))
                 ax.text(c, r, "崖", ha="center", va="center", color="white", fontsize=8)
+            elif ch == "K":
+                ax.text(c, r - 0.3, "★コイン", ha="center", va="center", color="gold", fontsize=7, fontweight="bold")
             elif ch == "S":
                 ax.text(c, r - 0.28, "S", ha="center", va="center", color="orange", fontsize=9, fontweight="bold")
             elif ch == "G":
                 ax.text(c, r, "G", ha="center", va="center", color="red", fontsize=12, fontweight="bold")
             if s is not None and policy is not None and ch not in ("G", "C"):
-                ax.text(c, r + 0.05, _ARROW[int(policy[s])], ha="center", va="center", color="white", fontsize=14)
+                ax.text(c, r + 0.05, _ARROW[int(policy[s])], ha="center", va="center",
+                        color="white" if V is not None else "black", fontsize=14)
             if s is not None and show_values and V is not None and ch != "C":
                 ax.text(c, r + 0.33, f"{V[s]:.0f}", ha="center", va="center", color="white", fontsize=6)
     ax.set_xticks(np.arange(-0.5, env.ncols, 1), minor=True); ax.set_yticks(np.arange(-0.5, env.nrows, 1), minor=True)

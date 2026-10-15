@@ -129,3 +129,56 @@ class TestBaselines(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRewardDesign(unittest.TestCase):
+    def test_新しい迷路の最短歩数(self):
+        from rl_envs import shortest_path_length
+        self.assertEqual(shortest_path_length(make_env("coin")), 8)
+        self.assertEqual(shortest_path_length(make_env("snake")), 53)
+
+    def test_ゴールまでの距離(self):
+        from rl_envs import distance_to_goal
+        env = make_env("maze")
+        d = distance_to_goal(env)
+        self.assertEqual(d[env.goal], 0)
+        self.assertEqual(d[env.start], 12)
+        self.assertTrue(np.isfinite(d).all())
+
+    def test_コインを踏むとボーナスがもらえる(self):
+        env = make_env("coin", coin_reward=5.0)
+        env.reset()
+        for a in [2, 2]:
+            env.step(a)                              # (2,0)
+        s, rew, done, trunc = env.step(1)            # (2,1)
+        s, rew, done, trunc = env.step(1)            # (2,2)=コイン
+        self.assertEqual(env.state_to_cell[s], (2, 2))
+        self.assertEqual(rew, -1.0 + 5.0)
+
+    def test_繰り返し取れるコインがあると_最適方策はゴールせず往復する(self):
+        env = make_env("coin", coin_reward=5.0)
+        V, pi = value_iteration(env, gamma=0.99)
+        r = evaluate_policy(env, pi, n_episodes=5)
+        self.assertEqual(r["success_rate"], 0.0)     # ゴールしない（コインを往復して稼ぎ続ける）
+        self.assertGreater(r["mean_return"], 0.0)    # 報酬は正になるが、ゴールには着かない
+
+    def test_報酬整形で最適方策は変わらない(self):
+        from rl_envs import distance_to_goal
+        for name in ("maze", "room"):
+            base = make_env(name, step_reward=0.0, goal_reward=1.0)
+            V0, pi0 = value_iteration(base, gamma=0.99)
+            pot = -distance_to_goal(base)
+            shaped = make_env(name, step_reward=0.0, goal_reward=1.0, potential=pot, shaping_gamma=0.99)
+            V1, pi1 = value_iteration(shaped, gamma=0.99)
+            r0 = evaluate_policy(base, pi0, 5)["mean_steps"]
+            r1 = evaluate_policy(shaped, pi1, 5)["mean_steps"]
+            self.assertEqual(r0, r1)                  # 最適な歩数が同じ
+            self.assertAlmostEqual(V1[base.start], V0[base.start] - pot[base.start], places=6)   # 価値は V* − Φ(s)
+
+    def test_整形すると_報酬がまばらでなくなる(self):
+        from rl_envs import distance_to_goal
+        base = make_env("snake", step_reward=0.0, goal_reward=1.0)
+        pot = -distance_to_goal(base)
+        shaped = make_env("snake", step_reward=0.0, goal_reward=1.0, potential=pot, shaping_gamma=0.99)
+        nonzero = lambda e: sum(abs(o[2]) > 1e-12 for s in range(e.n_states) for a in range(4) for o in e.P[s][a])  # noqa: E731
+        self.assertGreater(nonzero(shaped), nonzero(base) * 5)
